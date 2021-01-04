@@ -46,7 +46,7 @@ mod container_testing {
     }
 
     #[test]
-    fn check_add() {
+    fn check_add_vec() {
         let mut vec1 = vec3![1.0, 2.0, 3.0];
         let vec2 = vec3![4.0, 5.0, 6.0];
         let vec3 = vec3![0.5, 1.0, 1.5];
@@ -56,13 +56,25 @@ mod container_testing {
     }
 
     #[test]
-    fn check_minus() {
+    fn check_add_elem() {
+        let vec1 = vec3![1.0, 2.0, 3.0];
+        assert_eq!(vec1 + 1.0, vec3![2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn check_sub_vec() {
         let mut vec1 = vec3![1.0, 2.0, 3.0];
         let vec2 = vec3![4.0, 4.0, 4.0];
         let vec3 = vec3![0.5, 1.0, 1.5];
         assert_eq!(vec2 - vec1, vec3![3.0, 2.0, 1.0]);
         vec1 -= &vec3;
         assert_eq!(vec1, vec3![0.5, 1.0, 1.5]);
+    }
+
+    #[test]
+    fn check_sub_elem() {
+        let vec1 = vec3![1.0, 2.0, 3.0];
+        assert_eq!(vec1 - 1.0, vec3![0.0, 1.0, 2.0]);
     }
 
     #[test]

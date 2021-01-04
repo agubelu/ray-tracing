@@ -41,6 +41,10 @@ impl Vec3 {
         self.mag2().sqrt()
     }
 
+    pub fn mag2(&self) -> VecElem {
+        self[0]*self[0] + self[1]*self[1] + self[2]*self[2]
+    }
+
     pub fn unit(&self) -> Self {
         self / self.mag()
     }
@@ -53,10 +57,6 @@ impl Vec3 {
         Self::from(self[1] * other[2] - self[2] * other[1],
                    self[2] * other[0] - self[0] * other[2], 
                    self[0] * other[1] - self[1] * other[0])
-    }
-
-    fn mag2(&self) -> VecElem {
-        self[0]*self[0] + self[1]*self[1] + self[2]*self[2]
     }
 }
 
@@ -113,7 +113,9 @@ impl ops::DivAssign<VecElem> for Vec3 {
 }
 
 overload!((a: ?Vec3) + (b: ?Vec3) -> Vec3 { Vec3 { data: [a[0] + b[0], a[1] + b[1], a[2] + b[2]] } });
+overload!((a: ?Vec3) + (b: VecElem) -> Vec3 { Vec3 { data: [a[0] + b, a[1] + b, a[2] + b] } });
 overload!((a: ?Vec3) - (b: ?Vec3) -> Vec3 { Vec3 { data: [a[0] - b[0], a[1] - b[1], a[2] - b[2]] } });
+overload!((a: ?Vec3) - (b: VecElem) -> Vec3 { Vec3 { data: [a[0] - b, a[1] - b, a[2] - b] } });
 overload!((a: ?Vec3) * (b: VecElem) -> Vec3 { Vec3 { data: [a[0] * b, a[1] * b, a[2] * b] } });
 overload!((a: ?Vec3) / (b: VecElem) -> Vec3 { Vec3 { data: [a[0] / b, a[1] / b, a[2] / b] } });
 overload!((a: ?Vec3) * (b: ?Vec3) -> VecElem { a.dot_prod(&b) });
