@@ -60,6 +60,12 @@ impl Vec3 {
     }
 }
 
+impl Default for Vec3 {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ops::Index<usize> for Vec3 {
     type Output = VecElem;
 

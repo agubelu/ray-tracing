@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod container_testing {
-    use super::super::vec3::{Vec3, VecElem};
-    use super::super::super::vec3;
+    use crate::data::{Vec3, VecElem};
+    use crate::vec3;
 
     const ERROR_MARGIN: VecElem = VecElem::EPSILON;
 
@@ -42,7 +42,7 @@ mod container_testing {
     #[test]
     fn check_mag() {
         let vec = vec3![1.0, 2.0, 3.0];
-        assert!(elems_eq(vec.mag(), (14.0 as VecElem).sqrt()));
+        assert!(elems_eq(vec.mag(), 14_f32.sqrt()));
     }
 
     #[test]
@@ -79,6 +79,16 @@ mod container_testing {
         assert_eq!(vec1 / 2.0, vec3![5.0, 10.0, 15.0]);
         vec1 /= 10.0;
         assert_eq!(vec1, vec3![1.0, 2.0, 3.0]);
+    }
+
+    #[test]
+    fn check_unit() {
+        let vec1 = vec3![5.0, 6.5, 7.0];
+        let unit = vec1.unit();
+        let f = vec1[0] / unit[0];
+        assert!(elems_eq(vec1[1] / f, unit[1]));
+        assert!(elems_eq(vec1[2] / f, unit[2]));
+        assert!(elems_eq(unit.mag(), 1.0));
     }
 
     #[test]

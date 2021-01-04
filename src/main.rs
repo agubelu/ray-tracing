@@ -1,30 +1,22 @@
-mod containers;
+mod data;
+mod img;
+mod world;
 
-use std::{char::MAX, fs::File, io::Write};
-use std::io::BufWriter;
-use containers::vec3::{Color, Vec3};
+use std::fs::create_dir_all;
 
+use data::Vec3;
+use world::{SceneConfig, Scene, elements::{SceneElement, Sphere}};
+use img::ImgFormat;
 
 fn main() {
-    const WIDTH: usize = 256;
-    const HEIGHT: usize = 256;
-    const MAX_VAL: usize = 255;    
-    /*
-    let mut f = BufWriter::new(File::create("out/simple.ppm").expect("Unable to create file"));
-    
-    f.write(&format!("P3\n{} {}\n{}\n", WIDTH, HEIGHT, MAX_VAL).as_bytes());
+    // Create the out/ folder if it doesn't exist
+    create_dir_all("out").unwrap();
 
-    for j in 0..HEIGHT {
-        for i in 0..WIDTH {
-            let r = MAX_VAL - i;
-            let g = MAX_VAL - j;
-            let b = 128;
+    let sphere = Box::new(Sphere::new(vec3![0.0, 0.0, -1.0], 0.5, vec3![1.0, 0.1, 0.1]));
+    let elems: Vec<Box<dyn SceneElement>> = vec![sphere];
 
-            f.write(&format!("{} {} {}\n", r, g, b).as_bytes());
-        }
-    }*/
-
-    
-    println!("{:?}", vec3![1.0, 2.0, 3.0]);
-
+    let config = SceneConfig::new(400, 225, 2, 1.0, vec3![0.0, 0.0, 0.0], "scene".into(), ImgFormat::PNG, elems);
+    let mut scene = Scene::from_config(config);
+    scene.render();
 }
+
