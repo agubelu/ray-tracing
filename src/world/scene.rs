@@ -1,6 +1,6 @@
 use crate::vec3;
 use crate::data::{Color, Vec3, Ray};
-use crate::img::{ImageBuf, ImgFormat};
+use crate::img::{ImgFormat, save_image};
 use super::{SceneConfig, Camera, elements::ElementList};
 
 use rand::random;
@@ -12,7 +12,6 @@ pub struct Scene<'a> {
     img_format: ImgFormat,
     camera: Camera,
     title: String,
-    image: ImageBuf,
     elements: ElementList<'a>,
     samples: u32,
 }
@@ -25,7 +24,6 @@ impl<'a> Scene<'a> {
             img_format: config.img_format,
             camera: Camera::from_config(config.camera),
             title: config.title,
-            image: ImageBuf::new(config.img_width, config.img_height),
             elements: config.elements,
             samples: config.samples,
         }
@@ -41,7 +39,10 @@ impl<'a> Scene<'a> {
         let background_grad_end: Color = vec3![0.5, 0.7, 1.0];
         let gamma_correct = 1.0 / self.samples as f32;
 
-        (0..self.img_height).into_iter().for_each(|y| {
+        let mut pixels = vec![0; self.img_width * self.img_height * 3];
+        let slices = pixels.par_chunks_mut(self.img_width * 3);
+
+        (0..self.img_height).into_par_iter().rev().zip(slices).for_each(|(y, chunk)| {
             for x in 0..self.img_width {
                 let mut color = vec3![0.0, 0.0, 0.0];
 
@@ -52,16 +53,15 @@ impl<'a> Scene<'a> {
 
                     color += &self.get_ray_color(&ray, MAX_BOUNCES, &background_grad_start, &background_grad_end);
                 }
-                
-                color[0] = (color.x() * gamma_correct).sqrt();
-                color[1] = (color.y() * gamma_correct).sqrt();
-                color[2] = (color.z() * gamma_correct).sqrt();
 
-                self.image.set_pixel(x, self.img_height-1 - y, &color);
+                let pos = x * 3;
+                chunk[pos] = ((color.x() * gamma_correct).sqrt() * 255.0) as u8;
+                chunk[pos + 1] = ((color.y() * gamma_correct).sqrt() * 255.0) as u8;
+                chunk[pos + 2] = ((color.z() * gamma_correct).sqrt() * 255.0) as u8;
             }
         });
 
-        self.image.save(&self.title, &self.img_format);
+        save_image(self.img_width, self.img_height, &pixels, &self.img_format, &self.title);
     }
 
     fn get_ray_color(&self, ray: &Ray, bounces_left: u32, grad_start: &Color, grad_end: &Color) -> Color {

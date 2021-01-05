@@ -2,11 +2,22 @@ use std::path::Path;
 use std::fs::File;
 use std::io::BufWriter;
 
+use super::ImgFormat;
+
 extern crate png;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pub fn encode_png(width: usize, height: usize, content: &[u8], out_path: &str) {
+pub fn save_image(width: usize, height: usize, content: &[u8], format: &ImgFormat, title: &str) {
+    let (ext, encoder) = match format {
+        ImgFormat::PNG => ("png", encode_png),
+    };
+
+    let path = format!("out/{}.{}", title, ext);
+    encoder(width, height, content, &path);
+}
+
+fn encode_png(width: usize, height: usize, content: &[u8], out_path: &str) {
     let path = Path::new(out_path);
     let img_file = File::create(path).unwrap();
 

@@ -3,6 +3,7 @@ mod img;
 mod world;
 
 use std::fs::create_dir_all;
+use std::time::Instant;
 
 use data::Vec3;
 use world::{
@@ -69,8 +70,12 @@ fn main() {
         aspect_ratio: 16.0 / 9.0,
     };
 
-    let config = SceneConfig::new(640, 360, camera, "scene".into(), ImgFormat::PNG, elems, 32);
+    let config = SceneConfig::new(1920, 1080, camera, "scene".into(), ImgFormat::PNG, elems, 100);
     let mut scene = Scene::from_config(config);
+
+    let time = Instant::now();
     scene.render();
+    let elapsed_ms = time.elapsed().as_nanos() as f64 / 1_000_000.0;
+    println!("Elapsed: {:.3} ms", elapsed_ms);
 }
 
