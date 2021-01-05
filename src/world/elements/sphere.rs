@@ -1,15 +1,20 @@
+use super::super::materials::MaterialBox;
 use super::SceneElement;
-use crate::data::{Point, Color, Ray, Vec3, Hit};
-use crate::vec3;
-pub struct Sphere {
+use crate::data::{Point, Ray, Hit};
+
+pub struct Sphere<'a> {
     center: Point,
     radius: f32,
-    color: Color,
+    material: MaterialBox<'a>,
 }
 
-impl Sphere {
-    pub fn new(center: Point, radius: f32, color: Color) -> Self {
-        Sphere { center, radius, color }
+impl<'a> Sphere<'a> {
+    pub fn new(center: Point, radius: f32, material: MaterialBox<'a>) -> Self {
+        Sphere { center, radius, material }
+    }
+
+    pub fn boxed(center: Point, radius: f32, material: MaterialBox<'a>) -> Box<Self> {
+        Box::new(Self::new(center, radius, material))
     }
 
     pub fn center(&self) -> &Point {
@@ -19,13 +24,9 @@ impl Sphere {
     pub fn radius(&self) -> f32 {
         self.radius
     }
-
-    pub fn color(&self) -> &Color {
-        &self.color
-    }
 }
 
-impl SceneElement for Sphere {
+impl<'a> SceneElement for Sphere<'a> {
     fn ray_hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         let oc = ray.origin() - self.center();
         let a = ray.direction().mag2();
@@ -48,7 +49,7 @@ impl SceneElement for Sphere {
 
         let point = ray.at(root);
         let normal = (point - self.center()) / self.radius();
-        let mut hit = Hit::new(point, normal, root);
+        let mut hit = Hit::new(point, normal, root, &self.material);
         hit.set_face_normal(&ray, &normal);
         return Some(hit);
     }

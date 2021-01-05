@@ -1,5 +1,7 @@
-use crate::vec3;
 use crate::data::{Vec3, Point, Ray};
+use config::CameraConfig;
+
+use super::config;
 
 pub struct Camera {
     position: Point,
@@ -9,16 +11,28 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn create(position: Point, aspect_ratio: f32, vp_height: f32, focal: f32) -> Self {
+    pub fn create(look_from: Point, look_at: Point, vup: Vec3, aspect_ratio: f32, fov: f32) -> Self {
+        let theta = fov.to_radians();
+        let hor = (theta / 2.0).tan();
+        let vp_height = 2.0 * hor;
         let vp_width = vp_height * aspect_ratio;
-        let h = vec3![vp_width, 0.0, 0.0];
-        let v = vec3![0.0, vp_height, 0.0];
-        let corner = position - h/2.0 - v/2.0 - vec3![0.0, 0.0, focal];
-        Camera { position, h, v, corner }
+
+        let w = (look_from - look_at).unit();
+        let u = (vup % w).unit();
+        let v = w % u;
+
+        let h = u * vp_width;
+        let v = v * vp_height;
+        let corner = look_from - h/2.0 - v/2.0 - w;
+        Camera { h, v, corner, position: look_from }
+    }
+
+    pub fn from_config(config: CameraConfig) -> Self {
+        Self::create(config.look_from, config.look_at, config.vup, config.aspect_ratio, config.fov)
     }
 
     pub fn create_ray(&self, u: f32, v: f32) -> Ray {
-        Ray::new(self.position, self.corner + self.h * u + self.v * v)
+        Ray::new(self.position, self.corner + self.h * u + self.v * v - self.position)
     }
 }
 

@@ -1,15 +1,18 @@
 use super::{Point, Vec3, Ray};
+use crate::world::materials::MaterialBox;
+
 #[derive(Copy, Clone)]
-pub struct Hit {
+pub struct Hit<'a> {
     point: Point,
     normal: Vec3,
     t: f32,
     front: bool,
+    material: &'a MaterialBox<'a>,
 }
 
-impl Hit {
-    pub fn new(point: Point, normal: Vec3, t: f32) -> Self {
-        Hit { point, normal, t, front: true }
+impl<'a> Hit<'a> {
+    pub fn new(point: Point, normal: Vec3, t: f32, material: &'a MaterialBox<'a>) -> Self {
+        Hit { point, normal, t, material, front: true }
     }
 
     pub fn point(&self) -> &Point {
@@ -22,6 +25,14 @@ impl Hit {
 
     pub fn t(&self) -> f32 {
         self.t
+    }
+
+    pub fn material(&self) -> &MaterialBox {
+        self.material
+    }
+
+    pub fn is_front(&self) -> bool {
+        self.front
     }
 
     pub fn set_face_normal(&mut self, ray: &Ray, out_norm: &Vec3) {

@@ -5,8 +5,10 @@ use std::ops;
 
 pub type Color = Vec3;
 pub type Point = Vec3;
-
 pub type VecElem = f32;
+
+const NEAR_ZERO: f32 = 1e-8;
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec3 { data: [VecElem; 3] }
 
@@ -23,6 +25,42 @@ impl Vec3 {
 
     pub fn from(e1: VecElem, e2: VecElem, e3: VecElem) -> Self {
         Vec3 { data: [e1, e2, e3] }
+    }
+
+    pub fn random() -> Self {
+        Vec3 { data: [rand::random(), rand::random(), rand::random()] }
+    }
+
+    pub fn random_range(min: f32, max: f32) -> Self {
+        Self::random() * (max - min) + min
+    }
+
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let v = Self::random_range(-1.0, 1.0);
+            if v.mag2() < 1.0 {
+                return v;
+            }
+        }
+    }
+
+    pub fn random_unit() -> Self {
+        Self::random_in_unit_sphere().unit()
+    }
+
+    pub fn reflect(v: &Vec3, n: &Vec3) -> Self {
+        v - n * 2.0 * v.dot_prod(&n)
+    }
+
+    pub fn refract(uv: &Vec3, n: &Vec3, e: f32) -> Self {
+        let mut cos_theta = (uv * -1.0) * n;
+        if cos_theta > 1.0 {
+            cos_theta = 1.0;
+        }
+
+        let perp = (uv + (n * cos_theta)) * e;
+        let par = n * -(1.0 - perp.mag2()).abs().sqrt();
+        perp + par
     }
 
     pub fn x(&self) -> VecElem {
@@ -53,10 +91,18 @@ impl Vec3 {
         self[0] * other[0] + self[1] * other[1] + self[2] * other[2]
     }
 
+    pub fn elem_prod(&self, other: &Self) -> Vec3 {
+        Self::from(self[0] * other[0], self[1] * other[1], self[2] * other[2])
+    }
+
     pub fn cross_prod(&self, other: &Self) -> Self {
         Self::from(self[1] * other[2] - self[2] * other[1],
                    self[2] * other[0] - self[0] * other[2], 
                    self[0] * other[1] - self[1] * other[0])
+    }
+
+    pub fn is_near_zero(&self) -> bool {
+        self[0] < NEAR_ZERO && self[1] < NEAR_ZERO && self[2] < NEAR_ZERO
     }
 }
 

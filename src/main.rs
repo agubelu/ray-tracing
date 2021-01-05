@@ -5,20 +5,71 @@ mod world;
 use std::fs::create_dir_all;
 
 use data::Vec3;
-use world::{SceneConfig, Scene, elements::{ElementList, Sphere}};
+use world::{
+    config::CameraConfig,
+    SceneConfig, 
+    Scene, 
+    elements::{
+        ElementList, 
+        Sphere,
+    },
+    materials::{
+        Metal, Lambertian, Glass
+    }
+};
 use img::ImgFormat;
 
 fn main() {
     // Create the out/ folder if it doesn't exist
     create_dir_all("out").unwrap();
 
-    let sphere = Box::new(Sphere::new(vec3![0.0, 0.0, -1.0], 0.5, vec3![1.0, 0.0, 0.0]));
-    let floor = Box::new(Sphere::new(vec3![0.0, -1000.5, -1.0], 1000.0, vec3![1.0, 0.0, 0.0]));
-    let mut elems = ElementList::new();
-    elems.add_element(floor);
-    elems.add_element(sphere);
+    
+    let left_sphere = Sphere::boxed(
+        vec3![0.0, -0.2, -0.4], 
+        0.2, 
+        Glass::boxed(vec3![0.8, 0.6, 0.6], 1.5)
+    );
 
-    let config = SceneConfig::new(640, 360, 2.0, 1.0, vec3![0.0, 0.0, 0.0], "scene".into(), ImgFormat::PNG, elems, 100);
+    let left_sphere2 = Sphere::boxed(
+        vec3![0.0, -0.2, -0.4], 
+        -0.19, 
+        Glass::boxed(vec3![0.8, 0.6, 0.6], 1.5)
+    );
+
+    let center_sphere = Sphere::boxed(
+        vec3![0.0, 0.0, -1.0], 
+        0.5, 
+        Lambertian::boxed(vec3![0.1, 0.2, 0.5])
+    );
+
+    let right_sphere = Sphere::boxed(
+        vec3![1.0, 0.0,-1.0], 
+        0.5, 
+        Metal::boxed(vec3![0.8, 0.6, 0.2], 0.2)
+    );
+
+    let floor_sphere = Sphere::boxed(
+        vec3![0.0, -100.5,-1.0], 
+        100.0, 
+        Lambertian::boxed(vec3![0.8, 0.8, 0.0])
+    );
+
+    let mut elems = ElementList::new();
+    elems.push(floor_sphere);
+    elems.push(right_sphere);
+    elems.push(left_sphere);
+    elems.push(left_sphere2);
+    elems.push(center_sphere);
+
+    let camera = CameraConfig {
+        look_from: vec3![-1.5, 1.5, 1.0],
+        look_at: vec3![0.0, 0.0, -1.0],
+        vup: vec3![0.0, 1.0, 0.0],
+        fov: 45.0,
+        aspect_ratio: 16.0 / 9.0,
+    };
+
+    let config = SceneConfig::new(640, 360, camera, "scene".into(), ImgFormat::PNG, elems, 32);
     let mut scene = Scene::from_config(config);
     scene.render();
 }

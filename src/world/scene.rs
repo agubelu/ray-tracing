@@ -1,16 +1,18 @@
 use crate::vec3;
-use crate::data::{Color, Point, Vec3, Ray};
-use crate::img::{Image, create_image};
+use crate::data::{Color, Vec3, Ray};
+use crate::img::{ImageBuf, ImgFormat};
 use super::{SceneConfig, Camera, elements::ElementList};
 
-use rand::prelude::*;
+use rand::random;
+use rayon::prelude::*;
 
 pub struct Scene<'a> {
     img_width: usize,
     img_height: usize,
+    img_format: ImgFormat,
     camera: Camera,
     title: String,
-    image: Box<dyn Image>,
+    image: ImageBuf,
     elements: ElementList<'a>,
     samples: u32,
 }
@@ -20,46 +22,60 @@ impl<'a> Scene<'a> {
         Scene {
             img_width: config.img_width,
             img_height: config.img_height,
-            camera: config.camera,
+            img_format: config.img_format,
+            camera: Camera::from_config(config.camera),
             title: config.title,
-            image: create_image(config.img_width, config.img_height, &config.img_format),
+            image: ImageBuf::new(config.img_width, config.img_height),
             elements: config.elements,
             samples: config.samples,
         }
     }
 
     pub fn render(&mut self) {
+        const MAX_BOUNCES: u32 = 50;
+
         let max_w = (self.img_width - 1) as f32;
         let max_h = (self.img_height - 1) as f32;
 
         let background_grad_start: Color = vec3![1.0, 1.0, 1.0];
         let background_grad_end: Color = vec3![0.5, 0.7, 1.0];
+        let gamma_correct = 1.0 / self.samples as f32;
 
-        let mut rng = rand::thread_rng();
-
-        for y in 0..self.img_height {
+        (0..self.img_height).into_iter().for_each(|y| {
             for x in 0..self.img_width {
                 let mut color = vec3![0.0, 0.0, 0.0];
 
                 for _ in 0..self.samples {
-                    let u = (x as f32 + rng.gen::<f32>()) / max_w;
-                    let v = (y as f32 + rng.gen::<f32>()) / max_h;
+                    let u = (x as f32 + random::<f32>()) / max_w;
+                    let v = (y as f32 + random::<f32>()) / max_h;
                     let ray = self.camera.create_ray(u, v);
 
-                    color += &self.get_ray_color(&ray, &background_grad_start, &background_grad_end);
+                    color += &self.get_ray_color(&ray, MAX_BOUNCES, &background_grad_start, &background_grad_end);
                 }
                 
-                color /= self.samples as f32;
+                color[0] = (color.x() * gamma_correct).sqrt();
+                color[1] = (color.y() * gamma_correct).sqrt();
+                color[2] = (color.z() * gamma_correct).sqrt();
+
                 self.image.set_pixel(x, self.img_height-1 - y, &color);
             }
-        }
+        });
 
-        self.image.save(&self.title);
+        self.image.save(&self.title, &self.img_format);
     }
 
-    fn get_ray_color(&self, ray: &Ray, grad_start: &Color, grad_end: &Color) -> Color {
-        if let Some(hit) = self.elements.ray_hit(ray, 0.0, 5.0) {
-            return (hit.normal() + vec3![1.0, 1.0, 1.0]) * 0.5;
+    fn get_ray_color(&self, ray: &Ray, bounces_left: u32, grad_start: &Color, grad_end: &Color) -> Color {
+        if bounces_left == 0 {
+            return vec3![0.0, 0.0, 0.0];
+        }
+
+        if let Some(hit) = self.elements.ray_hit(ray, 0.0001, f32::MAX) {
+            if let Some((color, scattered)) = hit.material().scatter(ray, &hit) {
+                let ray_color = self.get_ray_color(&scattered, bounces_left - 1, grad_start, grad_end);
+                return color.elem_prod(&ray_color);
+            } else {
+                return vec3![0.0, 0.0, 0.0];
+            }
         }
         
         let unit_dir = ray.direction().unit();

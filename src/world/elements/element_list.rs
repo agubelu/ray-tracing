@@ -12,7 +12,7 @@ impl<'a> ElementList<'a> {
         ElementList { elements: Vec::new() }
     }
 
-    pub fn add_element(&mut self, elem: BoxedElement<'a>) {
+    pub fn push(&mut self, elem: BoxedElement<'a>) {
         self.elements.push(elem);
     }
 
