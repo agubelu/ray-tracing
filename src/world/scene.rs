@@ -5,6 +5,7 @@ use super::{SceneConfig, Camera, elements::ElementList};
 
 use rand::random;
 use rayon::prelude::*;
+use indicatif::ParallelProgressIterator;
 
 pub struct Scene<'a> {
     img_width: usize,
@@ -42,7 +43,9 @@ impl<'a> Scene<'a> {
         let mut pixels = vec![0; self.img_width * self.img_height * 3];
         let slices = pixels.par_chunks_mut(self.img_width * 3);
 
-        (0..self.img_height).into_par_iter().rev().zip(slices).for_each(|(y, chunk)| {
+        (0..self.img_height).into_par_iter().rev().zip(slices)
+                            .progress_count(self.img_height as u64)
+                            .for_each(|(y, chunk)| {
             for x in 0..self.img_width {
                 let mut color = vec3![0.0, 0.0, 0.0];
 

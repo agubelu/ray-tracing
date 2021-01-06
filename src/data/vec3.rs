@@ -44,6 +44,15 @@ impl Vec3 {
         }
     }
 
+    pub fn random_in_unit_disk() -> Self {
+        loop {
+            let v = Self::from(rand::random::<f32>() * 2.0 - 1.0, rand::random::<f32>() * 2.0 - 1.0, 0.0);
+            if v.mag2() < 1.0 {
+                return v;
+            }
+        }
+    }
+
     pub fn random_unit() -> Self {
         Self::random_in_unit_sphere().unit()
     }

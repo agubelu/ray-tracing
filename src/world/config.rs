@@ -18,6 +18,8 @@ pub struct CameraConfig {
     pub vup: Vec3, 
     pub aspect_ratio: f32, 
     pub fov: f32,
+    pub aperture: f32,
+    pub focus_dist: f32,
 }
 
 impl<'a> SceneConfig<'a> {

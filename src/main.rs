@@ -3,7 +3,6 @@ mod img;
 mod world;
 
 use std::fs::create_dir_all;
-use std::time::Instant;
 
 use data::Vec3;
 use world::{
@@ -46,7 +45,7 @@ fn main() {
     let right_sphere = Sphere::boxed(
         vec3![1.0, 0.0,-1.0], 
         0.5, 
-        Metal::boxed(vec3![0.8, 0.6, 0.2], 0.2)
+        Metal::boxed(vec3![0.9, 0.9, 0.9], 0.05)
     );
 
     let floor_sphere = Sphere::boxed(
@@ -68,14 +67,12 @@ fn main() {
         vup: vec3![0.0, 1.0, 0.0],
         fov: 45.0,
         aspect_ratio: 16.0 / 9.0,
+        aperture: 0.1,
+        focus_dist: (vec3![-1.5, 1.5, 1.0] - vec3![0.0, 0.0, -1.0]).mag()
     };
 
-    let config = SceneConfig::new(1920, 1080, camera, "scene".into(), ImgFormat::PNG, elems, 100);
+    let config = SceneConfig::new(1280, 720, camera, "scene".into(), ImgFormat::PNG, elems, 25);
     let mut scene = Scene::from_config(config);
-
-    let time = Instant::now();
     scene.render();
-    let elapsed_ms = time.elapsed().as_nanos() as f64 / 1_000_000.0;
-    println!("Elapsed: {:.3} ms", elapsed_ms);
 }
 
