@@ -4,8 +4,6 @@ use std::io::BufWriter;
 
 use super::ImgFormat;
 
-extern crate png;
-
 ///////////////////////////////////////////////////////////////////////////////
 
 pub fn save_image(width: usize, height: usize, content: &[u8], format: &ImgFormat, title: &str) {

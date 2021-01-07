@@ -1,5 +1,5 @@
 use super::{Point, Vec3, Ray};
-use crate::world::materials::MaterialBox;
+use crate::world::materials::Material;
 
 #[derive(Copy, Clone)]
 pub struct Hit<'a> {
@@ -7,11 +7,11 @@ pub struct Hit<'a> {
     normal: Vec3,
     t: f32,
     front: bool,
-    material: &'a MaterialBox<'a>,
+    material: &'a Material,
 }
 
 impl<'a> Hit<'a> {
-    pub fn new(point: Point, normal: Vec3, t: f32, material: &'a MaterialBox<'a>) -> Self {
+    pub fn new(point: Point, normal: Vec3, t: f32, material: &'a Material) -> Self {
         Hit { point, normal, t, material, front: true }
     }
 
@@ -27,7 +27,7 @@ impl<'a> Hit<'a> {
         self.t
     }
 
-    pub fn material(&self) -> &MaterialBox {
+    pub fn material(&self) -> &Material {
         self.material
     }
 

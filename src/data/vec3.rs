@@ -1,6 +1,5 @@
-extern crate overload;
-
 use overload::overload;
+use serde::Deserialize;
 use std::ops;
 
 pub type Color = Vec3;
@@ -9,8 +8,8 @@ pub type VecElem = f32;
 
 const NEAR_ZERO: f32 = 1e-8;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Vec3 { data: [VecElem; 3] }
+#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
+pub struct Vec3 ([VecElem; 3]);
 
 #[macro_export]
 macro_rules! vec3 {
@@ -20,15 +19,15 @@ macro_rules! vec3 {
 
 impl Vec3 {
     pub fn new() -> Self {
-        Vec3 { data: [0.0; 3] }
+        Vec3 { 0: [0.0; 3] }
     }
 
     pub fn from(e1: VecElem, e2: VecElem, e3: VecElem) -> Self {
-        Vec3 { data: [e1, e2, e3] }
+        Vec3 { 0: [e1, e2, e3] }
     }
 
     pub fn random() -> Self {
-        Vec3 { data: [rand::random(), rand::random(), rand::random()] }
+        Vec3 { 0: [rand::random(), rand::random(), rand::random()] }
     }
 
     pub fn random_range(min: f32, max: f32) -> Self {
@@ -125,13 +124,13 @@ impl ops::Index<usize> for Vec3 {
     type Output = VecElem;
 
     fn index(&self, ind: usize) -> &VecElem {
-        &self.data[ind]
+        &self.0[ind]
     }
 }
 
 impl ops::IndexMut<usize> for Vec3 {
     fn index_mut(&mut self, ind: usize) -> &mut VecElem {
-        &mut self.data[ind]
+        &mut self.0[ind]
     }
 }
 
@@ -167,11 +166,11 @@ impl ops::DivAssign<VecElem> for Vec3 {
     }
 }
 
-overload!((a: ?Vec3) + (b: ?Vec3) -> Vec3 { Vec3 { data: [a[0] + b[0], a[1] + b[1], a[2] + b[2]] } });
-overload!((a: ?Vec3) + (b: VecElem) -> Vec3 { Vec3 { data: [a[0] + b, a[1] + b, a[2] + b] } });
-overload!((a: ?Vec3) - (b: ?Vec3) -> Vec3 { Vec3 { data: [a[0] - b[0], a[1] - b[1], a[2] - b[2]] } });
-overload!((a: ?Vec3) - (b: VecElem) -> Vec3 { Vec3 { data: [a[0] - b, a[1] - b, a[2] - b] } });
-overload!((a: ?Vec3) * (b: VecElem) -> Vec3 { Vec3 { data: [a[0] * b, a[1] * b, a[2] * b] } });
-overload!((a: ?Vec3) / (b: VecElem) -> Vec3 { Vec3 { data: [a[0] / b, a[1] / b, a[2] / b] } });
+overload!((a: ?Vec3) + (b: ?Vec3) -> Vec3 { Vec3 { 0: [a[0] + b[0], a[1] + b[1], a[2] + b[2]] } });
+overload!((a: ?Vec3) + (b: VecElem) -> Vec3 { Vec3 { 0: [a[0] + b, a[1] + b, a[2] + b] } });
+overload!((a: ?Vec3) - (b: ?Vec3) -> Vec3 { Vec3 { 0: [a[0] - b[0], a[1] - b[1], a[2] - b[2]] } });
+overload!((a: ?Vec3) - (b: VecElem) -> Vec3 { Vec3 { 0: [a[0] - b, a[1] - b, a[2] - b] } });
+overload!((a: ?Vec3) * (b: VecElem) -> Vec3 { Vec3 { 0: [a[0] * b, a[1] * b, a[2] * b] } });
+overload!((a: ?Vec3) / (b: VecElem) -> Vec3 { Vec3 { 0: [a[0] / b, a[1] / b, a[2] / b] } });
 overload!((a: ?Vec3) * (b: ?Vec3) -> VecElem { a.dot_prod(&b) });
 overload!((a: ?Vec3) % (b: ?Vec3) -> Vec3 { a.cross_prod(&b) });

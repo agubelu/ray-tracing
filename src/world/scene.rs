@@ -1,44 +1,54 @@
 use crate::vec3;
 use crate::data::{Color, Vec3, Ray};
 use crate::img::{ImgFormat, save_image};
-use super::{SceneConfig, Camera, elements::ElementList};
+use crate::json::SceneSpec;
+use super::{Camera, elements::ElementList};
 
 use rand::random;
 use rayon::prelude::*;
 use indicatif::ParallelProgressIterator;
 
-pub struct Scene<'a> {
+pub struct Scene {
     img_width: usize,
     img_height: usize,
     img_format: ImgFormat,
     camera: Camera,
     title: String,
-    elements: ElementList<'a>,
-    samples: u32,
+    elements: ElementList,
+    antialias_amount: u32,
+    max_bounces: u32,
+    grad_start: Color,
+    grad_end: Color,
 }
 
-impl<'a> Scene<'a> {
-    pub fn from_config(config: SceneConfig<'a>) -> Self {
+impl Scene {
+    pub fn from_spec(spec: SceneSpec) -> Self {
+        let aspect_ratio = spec.img_width as f32 / spec.img_height as f32;
+        let cam = Camera::from_spec(spec.camera, aspect_ratio);
+
         Scene {
-            img_width: config.img_width,
-            img_height: config.img_height,
-            img_format: config.img_format,
-            camera: Camera::from_config(config.camera),
-            title: config.title,
-            elements: config.elements,
-            samples: config.samples,
+            img_width: spec.img_width,
+            img_height: spec.img_height,
+            img_format: spec.out_format,
+            camera: cam,
+            title: spec.title,
+            elements: spec.elements,
+            antialias_amount: spec.antialias_amount,
+            max_bounces: spec.max_bounces,
+            grad_start: spec.background_top_color,
+            grad_end: spec.background_bottom_color
         }
     }
 
-    pub fn render(&mut self) {
-        const MAX_BOUNCES: u32 = 50;
+    pub fn get_title(&self) -> &str {
+        &self.title
+    }
 
+    pub fn render(&self) {
         let max_w = (self.img_width - 1) as f32;
         let max_h = (self.img_height - 1) as f32;
 
-        let background_grad_start: Color = vec3![1.0, 1.0, 1.0];
-        let background_grad_end: Color = vec3![0.5, 0.7, 1.0];
-        let gamma_correct = 1.0 / self.samples as f32;
+        let gamma_correct = 1.0 / self.antialias_amount as f32;
 
         let mut pixels = vec![0; self.img_width * self.img_height * 3];
         let slices = pixels.par_chunks_mut(self.img_width * 3);
@@ -49,12 +59,12 @@ impl<'a> Scene<'a> {
             for x in 0..self.img_width {
                 let mut color = vec3![0.0, 0.0, 0.0];
 
-                for _ in 0..self.samples {
+                for _ in 0..self.antialias_amount {
                     let u = (x as f32 + random::<f32>()) / max_w;
                     let v = (y as f32 + random::<f32>()) / max_h;
                     let ray = self.camera.create_ray(u, v);
 
-                    color += &self.get_ray_color(&ray, MAX_BOUNCES, &background_grad_start, &background_grad_end);
+                    color += &self.get_ray_color(&ray, self.max_bounces);
                 }
 
                 let pos = x * 3;
@@ -67,14 +77,14 @@ impl<'a> Scene<'a> {
         save_image(self.img_width, self.img_height, &pixels, &self.img_format, &self.title);
     }
 
-    fn get_ray_color(&self, ray: &Ray, bounces_left: u32, grad_start: &Color, grad_end: &Color) -> Color {
+    fn get_ray_color(&self, ray: &Ray, bounces_left: u32) -> Color {
         if bounces_left == 0 {
             return vec3![0.0, 0.0, 0.0];
         }
 
         if let Some(hit) = self.elements.ray_hit(ray, 0.0001, f32::MAX) {
             if let Some((color, scattered)) = hit.material().scatter(ray, &hit) {
-                let ray_color = self.get_ray_color(&scattered, bounces_left - 1, grad_start, grad_end);
+                let ray_color = self.get_ray_color(&scattered, bounces_left - 1);
                 return color.elem_prod(&ray_color);
             } else {
                 return vec3![0.0, 0.0, 0.0];
@@ -83,6 +93,6 @@ impl<'a> Scene<'a> {
         
         let unit_dir = ray.direction().unit();
         let t = (unit_dir.y() + 1.0) * 0.5;
-        return grad_start * (1.0 - t) + grad_end * t;
+        return self.grad_start * (1.0 - t) + self.grad_end * t;
     }
 }

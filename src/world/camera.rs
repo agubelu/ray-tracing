@@ -1,16 +1,11 @@
 use crate::data::{Vec3, Point, Ray};
-use config::CameraConfig;
-
-use super::config;
+use crate::json::CameraSpec;
 
 pub struct Camera {
     position: Point,
     hor: Vec3,
     ver: Vec3,
     corner: Vec3,
-    u: Vec3,
-    v: Vec3,
-    w: Vec3,
     lens_rad: f32,
 }
 
@@ -29,11 +24,11 @@ impl Camera {
         let ver = v * vp_height * focus_dist;
         let corner = look_from - hor/2.0 - ver/2.0 - w*focus_dist;
         let lens_rad = aperture / 2.0;
-        Camera { hor, ver, corner, u, v, w, lens_rad, position: look_from }
+        Camera { hor, ver, corner, lens_rad, position: look_from }
     }
 
-    pub fn from_config(config: CameraConfig) -> Self {
-        Self::create(config.look_from, config.look_at, config.vup, config.aspect_ratio, config.fov, config.aperture, config.focus_dist)
+    pub fn from_spec(spec: CameraSpec, aspect_ratio: f32) -> Self {
+        Self::create(spec.position, spec.looking_at, spec.up_vec, aspect_ratio, spec.fov, spec.aperture, spec.focus_distance)
     }
 
     pub fn create_ray(&self, u: f32, v: f32) -> Ray {
@@ -45,4 +40,3 @@ impl Camera {
         )
     }
 }
-

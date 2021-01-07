@@ -1,30 +1,12 @@
-use super::Material;
 use crate::data::{Ray, Hit, Color, Vec3};
 
-pub struct Metal {
-    color: Color,
-    fuzziness: f32,
-}
+pub fn metal_scatter(color: &Color, fuzziness: f32, ray: &Ray, hit: &Hit) -> Option<(Color, Ray)> {
+    let reflected = Vec3::reflect(&ray.direction().unit(), &hit.normal());
+    let scattered = Ray::new(*hit.point(), reflected + Vec3::random_in_unit_sphere() * fuzziness);
 
-impl Metal {
-    pub fn create(color: Color, fuzziness: f32) -> Self {
-        Metal { color, fuzziness }
-    }
-
-    pub fn boxed(color: Color , fuzziness: f32) -> Box<Self> {
-        Box::new(Self::create(color, fuzziness))
-    }
-}
-
-impl Material for Metal {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<(Color, Ray)> {
-        let reflected = Vec3::reflect(&ray.direction().unit(), &hit.normal());
-        let scattered = Ray::new(*hit.point(), reflected + Vec3::random_in_unit_sphere() * self.fuzziness);
-
-        if scattered.direction() * hit.normal() > 0.0 {
-            Some((self.color, scattered))
-        } else {
-            None
-        }
+    if scattered.direction() * hit.normal() > 0.0 {
+        Some((*color, scattered))
+    } else {
+        None
     }
 }
