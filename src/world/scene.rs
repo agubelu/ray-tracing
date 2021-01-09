@@ -1,5 +1,5 @@
 use crate::vec3;
-use crate::data::{Color, Vec3, Ray};
+use crate::data::{Color, Vec3, Ray, RTFloat};
 use crate::img::{ImgFormat, save_image};
 use crate::json::SceneSpec;
 use super::{Camera, elements::ElementList};
@@ -23,7 +23,7 @@ pub struct Scene {
 
 impl Scene {
     pub fn from_spec(spec: SceneSpec) -> Self {
-        let aspect_ratio = spec.img_width as f32 / spec.img_height as f32;
+        let aspect_ratio = spec.img_width as RTFloat / spec.img_height as RTFloat;
         let cam = Camera::from_spec(spec.camera, aspect_ratio);
 
         Scene {
@@ -45,10 +45,10 @@ impl Scene {
     }
 
     pub fn render(&self) {
-        let max_w = (self.img_width - 1) as f32;
-        let max_h = (self.img_height - 1) as f32;
+        let max_w = (self.img_width - 1) as RTFloat;
+        let max_h = (self.img_height - 1) as RTFloat;
 
-        let gamma_correct = 1.0 / self.antialias_amount as f32;
+        let gamma_correct = 1.0 / self.antialias_amount as RTFloat;
 
         let mut pixels = vec![0; self.img_width * self.img_height * 3];
         let slices = pixels.par_chunks_mut(self.img_width * 3);
@@ -60,8 +60,8 @@ impl Scene {
                 let mut color = vec3![0.0, 0.0, 0.0];
 
                 for _ in 0..self.antialias_amount {
-                    let u = (x as f32 + random::<f32>()) / max_w;
-                    let v = (y as f32 + random::<f32>()) / max_h;
+                    let u = (x as RTFloat + random::<RTFloat>()) / max_w;
+                    let v = (y as RTFloat + random::<RTFloat>()) / max_h;
                     let ray = self.camera.create_ray(u, v);
 
                     color += &self.get_ray_color(&ray, self.max_bounces);
@@ -82,7 +82,7 @@ impl Scene {
             return vec3![0.0, 0.0, 0.0];
         }
 
-        if let Some(hit) = self.elements.ray_hit(ray, 0.0001, f32::MAX) {
+        if let Some(hit) = self.elements.ray_hit(ray, 0.0001, RTFloat::MAX) {
             if let Some((color, scattered)) = hit.material().scatter(ray, &hit) {
                 let ray_color = self.get_ray_color(&scattered, bounces_left - 1);
                 return color.elem_prod(&ray_color);

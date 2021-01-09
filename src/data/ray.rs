@@ -1,4 +1,4 @@
-use super::{Vec3, Point};
+use super::{Vec3, Point, RTFloat};
 
 pub struct Ray {
     origin: Point,
@@ -18,7 +18,7 @@ impl Ray {
         &self.direction
     }
 
-    pub fn at(&self, t: f32) -> Point {
+    pub fn at(&self, t: RTFloat) -> Point {
         self.origin() + self.direction() * t
     }
 }

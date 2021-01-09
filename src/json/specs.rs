@@ -1,4 +1,4 @@
-use crate::data::{Vec3, Color};
+use crate::data::{Vec3, Color, RTFloat};
 use crate::world::elements::ElementList;
 use crate::img::ImgFormat;
 use serde::{Deserialize, Deserializer};
@@ -8,9 +8,9 @@ where
     D: Deserializer<'de>,
 {
     let s: ColorSpec = Deserialize::deserialize(deserializer)?;
-    let r = s.0[0] as f32 / 255.0;
-    let g = s.0[1] as f32 / 255.0;
-    let b = s.0[2] as f32 / 255.0;
+    let r = s.0[0] as RTFloat / 255.0;
+    let g = s.0[1] as RTFloat / 255.0;
+    let b = s.0[2] as RTFloat / 255.0;
     Ok(Vec3::from(r, g, b))
 }
 
@@ -22,9 +22,9 @@ pub struct CameraSpec {
     pub position: Vec3,
     pub looking_at: Vec3,
     pub up_vec: Vec3,
-    pub fov: f32,
-    pub aperture: f32,
-    pub focus_distance: f32
+    pub fov: RTFloat,
+    pub aperture: RTFloat,
+    pub focus_distance: RTFloat
 }
 
 #[derive(Deserialize)]

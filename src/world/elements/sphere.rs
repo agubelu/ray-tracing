@@ -1,7 +1,7 @@
 use crate::world::materials::Material;
-use crate::data::{Point, Ray, Hit};
+use crate::data::{Point, Ray, Hit, RTFloat};
 
-pub fn sphere_hit<'a>(center: &Point, radius: f32, material: &'a Material, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit<'a>> {
+pub fn sphere_hit<'a>(center: &Point, radius: RTFloat, material: &'a Material, ray: &Ray, t_min: RTFloat, t_max: RTFloat) -> Option<Hit<'a>> {
     let oc = ray.origin() - center;
     let a = ray.direction().mag2();
     let b_h = oc * ray.direction();

@@ -2,14 +2,16 @@ use overload::overload;
 use serde::Deserialize;
 use std::ops;
 
+// This type controls the float precision used throughout the project
+pub type RTFloat = f64;
+
 pub type Color = Vec3;
 pub type Point = Vec3;
-pub type VecElem = f32;
 
-const NEAR_ZERO: f32 = 1e-8;
+const NEAR_ZERO: RTFloat = 1e-8;
 
 #[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
-pub struct Vec3 ([VecElem; 3]);
+pub struct Vec3 ([RTFloat; 3]);
 
 #[macro_export]
 macro_rules! vec3 {
@@ -22,7 +24,7 @@ impl Vec3 {
         Vec3 { 0: [0.0; 3] }
     }
 
-    pub fn from(e1: VecElem, e2: VecElem, e3: VecElem) -> Self {
+    pub fn from(e1: RTFloat, e2: RTFloat, e3: RTFloat) -> Self {
         Vec3 { 0: [e1, e2, e3] }
     }
 
@@ -30,7 +32,7 @@ impl Vec3 {
         Vec3 { 0: [rand::random(), rand::random(), rand::random()] }
     }
 
-    pub fn random_range(min: f32, max: f32) -> Self {
+    pub fn random_range(min: RTFloat, max: RTFloat) -> Self {
         Self::random() * (max - min) + min
     }
 
@@ -45,7 +47,7 @@ impl Vec3 {
 
     pub fn random_in_unit_disk() -> Self {
         loop {
-            let v = Self::from(rand::random::<f32>() * 2.0 - 1.0, rand::random::<f32>() * 2.0 - 1.0, 0.0);
+            let v = Self::from(rand::random::<RTFloat>() * 2.0 - 1.0, rand::random::<RTFloat>() * 2.0 - 1.0, 0.0);
             if v.mag2() < 1.0 {
                 return v;
             }
@@ -60,7 +62,7 @@ impl Vec3 {
         v - n * 2.0 * v.dot_prod(&n)
     }
 
-    pub fn refract(uv: &Vec3, n: &Vec3, e: f32) -> Self {
+    pub fn refract(uv: &Vec3, n: &Vec3, e: RTFloat) -> Self {
         let mut cos_theta = (uv * -1.0) * n;
         if cos_theta > 1.0 {
             cos_theta = 1.0;
@@ -71,23 +73,23 @@ impl Vec3 {
         perp + par
     }
 
-    pub fn x(&self) -> VecElem {
+    pub fn x(&self) -> RTFloat {
         self[0]
     }
 
-    pub fn y(&self) -> VecElem {
+    pub fn y(&self) -> RTFloat {
         self[1]
     }
 
-    pub fn z(&self) -> VecElem {
+    pub fn z(&self) -> RTFloat {
         self[2]
     }
 
-    pub fn mag(&self) -> VecElem {
+    pub fn mag(&self) -> RTFloat {
         self.mag2().sqrt()
     }
 
-    pub fn mag2(&self) -> VecElem {
+    pub fn mag2(&self) -> RTFloat {
         self[0]*self[0] + self[1]*self[1] + self[2]*self[2]
     }
 
@@ -95,7 +97,7 @@ impl Vec3 {
         self / self.mag()
     }
 
-    pub fn dot_prod(&self, other: &Self) -> VecElem {
+    pub fn dot_prod(&self, other: &Self) -> RTFloat {
         self[0] * other[0] + self[1] * other[1] + self[2] * other[2]
     }
 
@@ -121,15 +123,15 @@ impl Default for Vec3 {
 }
 
 impl ops::Index<usize> for Vec3 {
-    type Output = VecElem;
+    type Output = RTFloat;
 
-    fn index(&self, ind: usize) -> &VecElem {
+    fn index(&self, ind: usize) -> &RTFloat {
         &self.0[ind]
     }
 }
 
 impl ops::IndexMut<usize> for Vec3 {
-    fn index_mut(&mut self, ind: usize) -> &mut VecElem {
+    fn index_mut(&mut self, ind: usize) -> &mut RTFloat {
         &mut self.0[ind]
     }
 }
@@ -150,16 +152,16 @@ impl ops::SubAssign<&Vec3> for Vec3 {
     }
 }
 
-impl ops::MulAssign<VecElem> for Vec3 {
-    fn mul_assign(&mut self, mult: VecElem) {
+impl ops::MulAssign<RTFloat> for Vec3 {
+    fn mul_assign(&mut self, mult: RTFloat) {
         self[0] *= mult;
         self[1] *= mult;
         self[2] *= mult;
     }
 }
 
-impl ops::DivAssign<VecElem> for Vec3 {
-    fn div_assign(&mut self, div: VecElem) {
+impl ops::DivAssign<RTFloat> for Vec3 {
+    fn div_assign(&mut self, div: RTFloat) {
         self[0] /= div;
         self[1] /= div;
         self[2] /= div;
@@ -167,10 +169,10 @@ impl ops::DivAssign<VecElem> for Vec3 {
 }
 
 overload!((a: ?Vec3) + (b: ?Vec3) -> Vec3 { Vec3 { 0: [a[0] + b[0], a[1] + b[1], a[2] + b[2]] } });
-overload!((a: ?Vec3) + (b: VecElem) -> Vec3 { Vec3 { 0: [a[0] + b, a[1] + b, a[2] + b] } });
+overload!((a: ?Vec3) + (b: RTFloat) -> Vec3 { Vec3 { 0: [a[0] + b, a[1] + b, a[2] + b] } });
 overload!((a: ?Vec3) - (b: ?Vec3) -> Vec3 { Vec3 { 0: [a[0] - b[0], a[1] - b[1], a[2] - b[2]] } });
-overload!((a: ?Vec3) - (b: VecElem) -> Vec3 { Vec3 { 0: [a[0] - b, a[1] - b, a[2] - b] } });
-overload!((a: ?Vec3) * (b: VecElem) -> Vec3 { Vec3 { 0: [a[0] * b, a[1] * b, a[2] * b] } });
-overload!((a: ?Vec3) / (b: VecElem) -> Vec3 { Vec3 { 0: [a[0] / b, a[1] / b, a[2] / b] } });
-overload!((a: ?Vec3) * (b: ?Vec3) -> VecElem { a.dot_prod(&b) });
+overload!((a: ?Vec3) - (b: RTFloat) -> Vec3 { Vec3 { 0: [a[0] - b, a[1] - b, a[2] - b] } });
+overload!((a: ?Vec3) * (b: RTFloat) -> Vec3 { Vec3 { 0: [a[0] * b, a[1] * b, a[2] * b] } });
+overload!((a: ?Vec3) / (b: RTFloat) -> Vec3 { Vec3 { 0: [a[0] / b, a[1] / b, a[2] / b] } });
+overload!((a: ?Vec3) * (b: ?Vec3) -> RTFloat { a.dot_prod(&b) });
 overload!((a: ?Vec3) % (b: ?Vec3) -> Vec3 { a.cross_prod(&b) });

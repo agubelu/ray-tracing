@@ -1,4 +1,4 @@
-use crate::data::{Vec3, Point, Ray};
+use crate::data::{Vec3, Point, Ray, RTFloat};
 use crate::json::CameraSpec;
 
 pub struct Camera {
@@ -6,11 +6,11 @@ pub struct Camera {
     hor: Vec3,
     ver: Vec3,
     corner: Vec3,
-    lens_rad: f32,
+    lens_rad: RTFloat,
 }
 
 impl Camera {
-    pub fn create(look_from: Point, look_at: Point, vup: Vec3, aspect_ratio: f32, fov: f32, aperture: f32, focus_dist: f32) -> Self {
+    pub fn create(look_from: Point, look_at: Point, vup: Vec3, aspect_ratio: RTFloat, fov: RTFloat, aperture: RTFloat, focus_dist: RTFloat) -> Self {
         let theta = fov.to_radians();
         let h = (theta / 2.0).tan();
         let vp_height = 2.0 * h;
@@ -27,11 +27,11 @@ impl Camera {
         Camera { hor, ver, corner, lens_rad, position: look_from }
     }
 
-    pub fn from_spec(spec: CameraSpec, aspect_ratio: f32) -> Self {
+    pub fn from_spec(spec: CameraSpec, aspect_ratio: RTFloat) -> Self {
         Self::create(spec.position, spec.looking_at, spec.up_vec, aspect_ratio, spec.fov, spec.aperture, spec.focus_distance)
     }
 
-    pub fn create_ray(&self, u: f32, v: f32) -> Ray {
+    pub fn create_ray(&self, u: RTFloat, v: RTFloat) -> Ray {
         let rd = Vec3::random_in_unit_disk() * self.lens_rad;
         let offset = rd.x() * u + rd.y() + v;
         Ray::new(

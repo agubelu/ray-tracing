@@ -1,4 +1,4 @@
-use crate::data::{Ray, Hit, Color};
+use crate::data::{Ray, Hit, Color, RTFloat};
 use crate::json::specs::deserialize_color;
 use super::{glass, lambertian, metal};
 use serde::Deserialize;
@@ -20,12 +20,12 @@ pub enum Material {
     Glass { 
         #[serde(deserialize_with = "deserialize_color")]
         color: Color, 
-        refraction_index: f32
+        refraction_index: RTFloat
     },
     Metal { 
         #[serde(deserialize_with = "deserialize_color")]
         color: Color, 
-        fuzziness: f32 
+        fuzziness: RTFloat 
     }
 }
 

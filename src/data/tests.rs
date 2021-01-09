@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod container_testing {
-    use crate::data::{Vec3, VecElem};
+    use crate::data::{Vec3, RTFloat};
     use crate::vec3;
 
-    const ERROR_MARGIN: VecElem = VecElem::EPSILON;
+    const ERROR_MARGIN: RTFloat = RTFloat::EPSILON;
 
-    fn elems_eq(f1: VecElem, f2: VecElem) -> bool {
+    fn elems_eq(f1: RTFloat, f2: RTFloat) -> bool {
         (f1 - f2) < ERROR_MARGIN
     }
 
@@ -42,7 +42,7 @@ mod container_testing {
     #[test]
     fn check_mag() {
         let vec = vec3![1.0, 2.0, 3.0];
-        assert!(elems_eq(vec.mag(), 14_f32.sqrt()));
+        assert!(elems_eq(vec.mag(), (14 as RTFloat).sqrt()));
     }
 
     #[test]

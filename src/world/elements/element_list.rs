@@ -1,12 +1,12 @@
 use super::SceneElement;
-use crate::data::{Hit, Ray};
+use crate::data::{Hit, Ray, RTFloat};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct ElementList (Vec<SceneElement>);
 
 impl ElementList {
-    pub fn ray_hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
+    pub fn ray_hit(&self, ray: &Ray, t_min: RTFloat, t_max: RTFloat) -> Option<Hit> {
         let mut res = None;
         let mut t_closest = t_max;
 

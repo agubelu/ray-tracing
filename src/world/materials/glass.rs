@@ -1,8 +1,8 @@
 use rand::random;
 
-use crate::data::{Ray, Hit, Color, Vec3};
+use crate::data::{Ray, Hit, Color, Vec3, RTFloat};
 
-pub fn glass_scatter(color: &Color, refraction_index: f32, ray: &Ray, hit: &Hit) -> Option<(Color, Ray)> {
+pub fn glass_scatter(color: &Color, refraction_index: RTFloat, ray: &Ray, hit: &Hit) -> Option<(Color, Ray)> {
     let ref_ratio = if hit.is_front() {1.0 / refraction_index} else {refraction_index};
     let dir = ray.direction().unit();
 
@@ -23,7 +23,7 @@ pub fn glass_scatter(color: &Color, refraction_index: f32, ray: &Ray, hit: &Hit)
     Some((*color, scattered))
 }
 
-fn reflectance(cos: f32, ref_idx: f32) -> f32 {
+fn reflectance(cos: RTFloat, ref_idx: RTFloat) -> RTFloat {
     let mut r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
     r0 = r0 * r0;
     
