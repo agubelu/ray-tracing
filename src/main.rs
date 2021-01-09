@@ -20,9 +20,9 @@ fn main() {
 
     // Render all scenes from the provided files
     for file in &args[1..] {
-        println!("--- Rendering scenes from {} ---", file);
+        println!("=== {} ===", file);
         for scene in load_scenes_from_file(file) {
-            println!("\t · {}", scene.get_title());
+            println!("\t• {}", scene.get_title());
             scene.render();
         }
     }

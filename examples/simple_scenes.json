@@ -1,0 +1,123 @@
+{
+    "scenes": [
+        {
+            "img_width": 1280,
+            "img_height": 720,
+            "title": "ball_pyramid",
+            "antialias_amount": 100,
+            "max_bounces": 50,
+            "out_format": "png",
+            "background_top_color": [128, 178, 255],
+            "background_bottom_color": [255, 255, 255],
+            "camera": {
+                "position": [0.75, 3.0, 2.4],
+                "looking_at": [0.0, 1.2, 0.0],
+                "up_vec": [0.0, 1.0, 0.0],
+                "fov": 100.0,
+                "aperture": 0.15,
+                "focus_distance": 2.8
+            },
+            "elements": [
+                {
+                    "type": "sphere",
+                    "center": [0.0, 1.0, -1.1547],
+                    "radius": 1.0,
+                    "material": { "type": "lambertian", "color": [212, 59, 59] }
+                },
+                {
+                    "type": "sphere",
+                    "center": [-1.0, 1.0, 0.57735],
+                    "radius": 1.0,
+                    "material": { "type": "lambertian", "color": [85, 99, 212] }
+                },
+                {
+                    "type": "sphere",
+                    "center": [1.0, 1.0, 0.57735],
+                    "radius": 1.0,
+                    "material": { "type": "lambertian", "color": [255, 240, 23] }
+                },
+                {
+                    "type": "sphere",
+                    "center": [0.0, 2.633, 0.0],
+                    "radius": 1.0,
+                    "material": { "type": "metal", "color": [227, 227, 227], "fuzziness": 0.15 }
+                },
+                {
+                    "type": "sphere",
+                    "center": [0.0, -200.0, 0.0],
+                    "radius": 200.0,
+                    "material": { "type": "lambertian", "color": [200, 245, 184] }
+                }
+            ]
+        },
+
+        {
+            "img_width": 1280,
+            "img_height": 720,
+            "title": "ball_sizes",
+            "antialias_amount": 100,
+            "max_bounces": 50,
+            "out_format": "png",
+            "background_top_color": [84, 149, 247],
+            "background_bottom_color": [255, 255, 255],
+            "camera": {
+                "position": [16.5, 3.0, 8.5],
+                "looking_at": [1.6, 2.5, 1.6],
+                "up_vec": [0.0, 1.0, 0.0],
+                "fov": 40.0,
+                "aperture": 0.05,
+                "focus_distance": 9.5
+            },
+            "elements": [
+                {
+                    "type": "sphere",
+                    "center": [0.0, 2.0, 0.0],
+                    "radius": 2.2,
+                    "material": { "type": "metal", "color": [250, 83, 115], "fuzziness": 0.65 }
+                },
+                {
+                    "type": "sphere",
+                    "center": [3.5, 1.5, 3.5],
+                    "radius": 1.5,
+                    "material": { "type": "glass", "color": [218, 215, 245], "refraction_index": 1.5 }
+                },
+                {
+                    "type": "sphere",
+                    "center": [3.5, 1.5, 3.5],
+                    "radius": -1.45,
+                    "material": { "type": "glass", "color": [218, 215, 245], "refraction_index": 1.5 }
+                },
+                {
+                    "type": "sphere",
+                    "center": [5.0, 1.0, 5.0],
+                    "radius": 1.0,
+                    "material": { "type": "metal", "color": [177, 240, 194], "fuzziness": 0.05 }
+                },
+                {
+                    "type": "sphere",
+                    "center": [6.0, 0.5, 6.0],
+                    "radius": 0.5,
+                    "material": { "type": "lambertian", "color": [242, 187, 78] }
+                },
+                {
+                    "type": "sphere",
+                    "center": [5.5, 0.5, 7.0],
+                    "radius": 0.5,
+                    "material": { "type": "lambertian", "color": [237, 31, 217] }
+                },
+                {
+                    "type": "sphere",
+                    "center": [6.5, 0.14, 5.5],
+                    "radius": 0.15,
+                    "material": { "type": "lambertian", "color": [21, 25, 237] }
+                },
+                {
+                    "type": "sphere",
+                    "center": [0.0, -1000.0, 0.0],
+                    "radius": 1000.0,
+                    "material": { "type": "lambertian", "color": [138, 108, 0] }
+                }
+            ]
+        } 
+    ]
+}
